@@ -862,7 +862,7 @@ public class PanelsEOL extends JPanel implements ActionListener {
         }
 
 
-/*        String cirTemp = textFieldTemp.getText();
+        String cirTemp = textFieldTemp.getText();
         try {
             double d = Double.parseDouble(cirTemp);
             if (d < 15) {
@@ -875,7 +875,7 @@ public class PanelsEOL extends JPanel implements ActionListener {
         } catch (Exception exp) {
             mDataView.append("Error: 环境温度值输入错误！" + "\r\n");
             return false;
-        }*/
+        }
 
 
 
