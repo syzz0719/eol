@@ -1,9 +1,12 @@
 package com.ht.comm;
 
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+
+import javax.swing.JTextField;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,10 +20,13 @@ public class NetPortListener extends Thread {
     private static final Log logger = LogFactory.getLog(NetPortListener.class);
     ServerSocket server = null;
     Socket socket = null;
-
-    public NetPortListener(int port) {
+    JTextField codeField=null;
+    JTextField qcField=null;
+    public NetPortListener(int port, JTextField codeField,JTextField qcField) {
         try {
             server = new ServerSocket(port);
+            this.codeField=codeField;
+            this.qcField=qcField;
         } catch (IOException e) {
             logger.warn(e);
         }
@@ -38,23 +44,31 @@ public class NetPortListener extends Thread {
     @Override
     public void run() {
 
-            super.run();
-            try {
-                System.out.println(getdate() + "  等待客户端连接...");
-                socket = server.accept();
-                new sendMessThread().start();// 连接并返回socket后，再启用发送消息线程
-                System.out.println(getdate() + "  客户端 （" + socket.getInetAddress().getHostAddress() + "） 连接成功...");
-                InputStream in = socket.getInputStream();
-                int len = 0;
-                byte[] buf = new byte[1024];
+        super.run();
+        try {
+            System.out.println(getdate() + "  等待客户端连接...");
+            socket = server.accept();
+            new sendMessThread().start();// 连接并返回socket后，再启用发送消息线程
+            System.out.println(getdate() + "  客户端 （" + socket.getInetAddress().getHostAddress() + "） 连接成功...");
+            InputStream in = socket.getInputStream();
+            int len = 0;
+            byte[] buf = new byte[1024];
+            synchronized (this) {
                 while ((len = in.read(buf)) != -1) {
+                    String message = new String(buf, 0, len, "UTF-8");
                     System.out.println(getdate() + "  客户端: （" + socket.getInetAddress().getHostAddress() + "）说："
-                            + new String(buf, 0, len, "UTF-8"));
+                            + message);
+
+                    JSONObject jsonObject = JSONObject.parseObject(message);
+                    codeField.setText(jsonObject.getString("code"));
+                    qcField.setText(jsonObject.getString("qc"));
                     this.notify();
                 }
-            } catch (IOException e) {
-                logger.warn(e);
+
             }
+        } catch (IOException e) {
+            logger.warn(e);
+        }
 
     }
 
@@ -94,9 +108,9 @@ public class NetPortListener extends Thread {
         }
     }
 
-    // 函数入口
+/*    // 函数入口
     public static void main(String[] args) {
         NetPortListener server = new NetPortListener(1234);
         server.start();
-    }
+    }*/
 }

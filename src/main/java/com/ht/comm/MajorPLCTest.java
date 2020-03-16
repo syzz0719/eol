@@ -1,6 +1,7 @@
 package com.ht.comm;
 
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -81,10 +82,10 @@ public class MajorPLCTest extends Thread {
         return result;
     }
 
-    //函数入口
+/*    //函数入口
     public static void main(String[] args) {
         //需要服务器的正确的IP地址和端口号
         MajorPLCTest clientTest=new MajorPLCTest("127.0.0.1", 1234);
         clientTest.start();
-    }
+    }*/
 }

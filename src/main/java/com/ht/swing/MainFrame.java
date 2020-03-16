@@ -1,5 +1,6 @@
 package com.ht.swing;
 
+import com.ht.Socket.EolServer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.StopWatch;
@@ -21,7 +22,7 @@ public class MainFrame {
 
     private JFrame mainFrame;
 
-    public MainFrame() {
+    public MainFrame(String code,String qc) {
         logger.info("Init Main Frame ... ");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -39,7 +40,7 @@ public class MainFrame {
 
         // PanelsVDB pvt = new PanelsVDB();
         // PanelsV3 pvt = new PanelsV3();
-        PanelsEOL pvt = new PanelsEOL();
+        PanelsEOL pvt = new PanelsEOL(code,qc);
         Container contentPane = mainFrame.getContentPane();
         contentPane.add(pvt);
         mainFrame.setVisible(true);
@@ -50,6 +51,6 @@ public class MainFrame {
     }
 
     public static void main(String[] args) {
-        new MainFrame();
+        new MainFrame(null,null);
     }
 }

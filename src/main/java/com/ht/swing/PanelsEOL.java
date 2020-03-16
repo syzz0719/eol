@@ -1,12 +1,14 @@
 package com.ht.swing;
 
 
+import com.ht.Socket.EolServer;
 import com.ht.comm.NetPortListener;
 import com.ht.entity.ProRecords;
 import com.ht.jna.KeySightManager;
 
 import com.ht.utils.ByteUtils;
 import com.ht.utils.ShowUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.web.server.PortInUseException;
@@ -32,12 +34,13 @@ import java.util.List;
 
 
 public class PanelsEOL extends JPanel implements ActionListener {
+    public static JPanel mainPanel = new JPanel();
     ThreadLocal<String> eolStatus = ThreadLocal.withInitial(() -> "BUSY");
 
 
     private static final Log logger = LogFactory.getLog(PanelsEOL.class);
     KeySightManager manager = new KeySightManager();
-    JPanel mainPanel = new JPanel();
+
 
     // Buttons
     JButton resetButton = new HTSSButton(UIConstant.RESET_BUTTON);
@@ -82,8 +85,8 @@ public class PanelsEOL extends JPanel implements ActionListener {
     // 网口
     NetPortListener portListener;
 
-    public PanelsEOL() {
-        initMainPanel();
+    public PanelsEOL(String code,String qc) {
+        initMainPanel(code,qc);
         /*    this.initData();*/
         this.add(mainPanel);
         mainPanel.setVisible(true);
@@ -118,7 +121,7 @@ public class PanelsEOL extends JPanel implements ActionListener {
         return ready;
     }
 
-    private void initMainPanel() {
+    private void initMainPanel(String code,String qc) {
         GridBagLayout layout = new GridBagLayout();
         mainPanel.setLayout(layout);
         mainPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -167,7 +170,7 @@ public class PanelsEOL extends JPanel implements ActionListener {
          *********** 传入信息区域 ***********
          */
 
-        JPanel partDataPanel = createDataTransferInPanel();
+        JPanel partDataPanel = createDataTransferInPanel(code,qc);
         mainPanel.add(partDataPanel);
         gbc.gridx = 1;
         gbc.gridy = 1;
@@ -306,7 +309,7 @@ public class PanelsEOL extends JPanel implements ActionListener {
         return devicesPanel;
     }
 
-    private JPanel createDataTransferInPanel() {
+    public JPanel createDataTransferInPanel(String code ,String qc) {
         JPanel partDataPanel = new JPanel();
         partDataPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
                 "传入信息", TitledBorder.LEFT, TitledBorder.CENTER, UIConstant.TEXT_FONT));
@@ -325,6 +328,7 @@ public class PanelsEOL extends JPanel implements ActionListener {
         panel1.add(visualPartNumber);
         panel1.add(textFieldeolStatus);
         visualPartNumber.setEnabled(false);
+        visualPartNumber.setText(code);
         visualPartNumber.setPreferredSize(UIConstant.INPUT_LONGDIMENSION);
         partDataPanel.add(panel1);
 
@@ -340,10 +344,9 @@ public class PanelsEOL extends JPanel implements ActionListener {
         panel2.add(label2);
         panel2.add(textFieldResistorsID);
         textFieldResistorsID.setEnabled(false);
+        textFieldResistorsID.setText(qc);
         textFieldResistorsID.setPreferredSize(UIConstant.INPUT_LONGDIMENSION);
         partDataPanel.add(panel2);
-
-
         resetButton.setPreferredSize(UIConstant.BUTTON_DIMENSION);
         JPanel b3Panel = new JPanel();
         b3Panel.add(resetButton);
@@ -605,11 +608,10 @@ public class PanelsEOL extends JPanel implements ActionListener {
             logger.info("测试开始...");
             if (!checkInput()) return;
             testStartButton.setText(UIConstant.NETPORT_CLOSE);
-            String id = textFieldResistorsID.getText();
-
-            portListener = new NetPortListener(Integer.parseInt(textFieldNetPort.getText()));
+            portListener = new NetPortListener(Integer.parseInt(textFieldNetPort.getText()),visualPartNumber,textFieldResistorsID);
             portListener.start();
             mDataView.append(new Date() + "：网口已打开，可以接收数据......" + getStatus() + "\r\n");
+
         } else if (actionCommand.equals(UIConstant.NETPORT_CLOSE)) {
             portListener.closePort();
             mDataView.append(new Date() + "：网口已关闭......" + getStatus() + "\r\n");
@@ -860,7 +862,7 @@ public class PanelsEOL extends JPanel implements ActionListener {
         }
 
 
-        String cirTemp = textFieldTemp.getText();
+/*        String cirTemp = textFieldTemp.getText();
         try {
             double d = Double.parseDouble(cirTemp);
             if (d < 15) {
@@ -873,7 +875,7 @@ public class PanelsEOL extends JPanel implements ActionListener {
         } catch (Exception exp) {
             mDataView.append("Error: 环境温度值输入错误！" + "\r\n");
             return false;
-        }
+        }*/
 
 
 
@@ -882,27 +884,27 @@ public class PanelsEOL extends JPanel implements ActionListener {
             mDataView.append("状态:" + eolStatus.get()+ "\r\n");
         }
 
-        String vPartNumber = visualPartNumber.getText();
+   /*     String vPartNumber = visualPartNumber.getText();
         if (vPartNumber == null || UIConstant.EMPTY_STRING.equals(vPartNumber)) {
             mDataView.append("Error: 虚拟零件号传入为空，请检查！" + "\r\n");
             return false;
         } else if (vPartNumber.length() != 11) {
             mDataView.append("Error: 虚拟零件号" + vPartNumber + "长度不够，请检查！" + "\r\n");
             return false;
-        }
+        }*/
 
-        String resistorID = textFieldResistorsID.getText();
+  /*      String resistorID = textFieldResistorsID.getText();
         if (resistorID == null || UIConstant.EMPTY_STRING.equals(resistorID)) {
             mDataView.append("Error: 分流器二维码传入为空，请检查！" + "\r\n");
             return false;
         } else if (resistorID.length() < 11 || resistorID.length() > 12) {
             mDataView.append("Error: 分流器二维码" + resistorID + "长度不够，请检查！" + "\r\n");
             return false;
-        }
+        }*/
 
 
         String portStatus = initSerialButton.getText();
-        if (!"关闭串口".equals(portStatus)) {
+        if (!"打开串口".equals(portStatus)) {
             mDataView.append("Error: 串口没有打开，请检查！" + "\r\n");
             return false;
         }
