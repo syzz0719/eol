@@ -1,11 +1,12 @@
 package com.ht.comm;
 
 
-import javax.swing.JTextField;
+import com.alibaba.fastjson.JSONObject;
+
 
 public class NetPortListenerEx extends NetPortListener {
 
-    public NetPortListenerEx(int port , JTextField codeField,JTextField qcField) {
-        super(port,codeField,qcField);
+    public NetPortListenerEx(int port ,JSONObject jsonObject) {
+        super(port,jsonObject );
     }
 }

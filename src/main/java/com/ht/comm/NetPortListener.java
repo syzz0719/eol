@@ -2,6 +2,7 @@ package com.ht.comm;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.ht.jna.KeySightManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -22,11 +23,13 @@ public class NetPortListener extends Thread {
     Socket socket = null;
     JTextField codeField=null;
     JTextField qcField=null;
-    public NetPortListener(int port, JTextField codeField,JTextField qcField) {
+    JTextField temp=null;
+    public NetPortListener(int port,JSONObject jsonObject) {
         try {
             server = new ServerSocket(port);
-            this.codeField=codeField;
-            this.qcField=qcField;
+            this.codeField=(JTextField) jsonObject.get("visualPartNumber");
+            this.qcField=(JTextField) jsonObject.get("textFieldResistorsID");
+            this.temp=(JTextField) jsonObject.get("textFieldTemp");
         } catch (IOException e) {
             logger.warn(e);
         }
@@ -62,6 +65,8 @@ public class NetPortListener extends Thread {
                     JSONObject jsonObject = JSONObject.parseObject(message);
                     codeField.setText(jsonObject.getString("code"));
                     qcField.setText(jsonObject.getString("qc"));
+                    KeySightManager keySightManager=new KeySightManager();
+                    keySightManager.testThePart(jsonObject.getString("code"),Integer.valueOf(jsonObject.get("textFieldTemp").toString()),jsonObject.getString("qc"));
                     this.notify();
                 }
 

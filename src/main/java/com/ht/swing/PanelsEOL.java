@@ -1,6 +1,7 @@
 package com.ht.swing;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.ht.Socket.EolServer;
 import com.ht.comm.NetPortListener;
 import com.ht.entity.ProRecords;
@@ -85,8 +86,8 @@ public class PanelsEOL extends JPanel implements ActionListener {
     // 网口
     NetPortListener portListener;
 
-    public PanelsEOL(String code,String qc) {
-        initMainPanel(code,qc);
+    public PanelsEOL() {
+        initMainPanel();
         /*    this.initData();*/
         this.add(mainPanel);
         mainPanel.setVisible(true);
@@ -121,7 +122,7 @@ public class PanelsEOL extends JPanel implements ActionListener {
         return ready;
     }
 
-    private void initMainPanel(String code,String qc) {
+    private void initMainPanel() {
         GridBagLayout layout = new GridBagLayout();
         mainPanel.setLayout(layout);
         mainPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -170,7 +171,7 @@ public class PanelsEOL extends JPanel implements ActionListener {
          *********** 传入信息区域 ***********
          */
 
-        JPanel partDataPanel = createDataTransferInPanel(code,qc);
+        JPanel partDataPanel = createDataTransferInPanel();
         mainPanel.add(partDataPanel);
         gbc.gridx = 1;
         gbc.gridy = 1;
@@ -309,7 +310,7 @@ public class PanelsEOL extends JPanel implements ActionListener {
         return devicesPanel;
     }
 
-    public JPanel createDataTransferInPanel(String code ,String qc) {
+    public JPanel createDataTransferInPanel() {
         JPanel partDataPanel = new JPanel();
         partDataPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
                 "传入信息", TitledBorder.LEFT, TitledBorder.CENTER, UIConstant.TEXT_FONT));
@@ -328,7 +329,6 @@ public class PanelsEOL extends JPanel implements ActionListener {
         panel1.add(visualPartNumber);
         panel1.add(textFieldeolStatus);
         visualPartNumber.setEnabled(false);
-        visualPartNumber.setText(code);
         visualPartNumber.setPreferredSize(UIConstant.INPUT_LONGDIMENSION);
         partDataPanel.add(panel1);
 
@@ -344,7 +344,6 @@ public class PanelsEOL extends JPanel implements ActionListener {
         panel2.add(label2);
         panel2.add(textFieldResistorsID);
         textFieldResistorsID.setEnabled(false);
-        textFieldResistorsID.setText(qc);
         textFieldResistorsID.setPreferredSize(UIConstant.INPUT_LONGDIMENSION);
         partDataPanel.add(panel2);
         resetButton.setPreferredSize(UIConstant.BUTTON_DIMENSION);
@@ -608,7 +607,11 @@ public class PanelsEOL extends JPanel implements ActionListener {
             logger.info("测试开始...");
             if (!checkInput()) return;
             testStartButton.setText(UIConstant.NETPORT_CLOSE);
-            portListener = new NetPortListener(Integer.parseInt(textFieldNetPort.getText()),visualPartNumber,textFieldResistorsID);
+            JSONObject jsonObject=new JSONObject();
+            jsonObject.put("textFieldTemp",textFieldTemp);
+            jsonObject.put("visualPartNumber",visualPartNumber);
+            jsonObject.put("textFieldResistorsID",textFieldResistorsID);
+            portListener = new NetPortListener(Integer.parseInt(textFieldNetPort.getText()),jsonObject);
             portListener.start();
             mDataView.append(new Date() + "：网口已打开，可以接收数据......" + getStatus() + "\r\n");
 
